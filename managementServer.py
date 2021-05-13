@@ -17,38 +17,47 @@ def extractFrames():
         try:
             cv2.imwrite( name , frame )
         except:
-            break
+            print( '<<<All Frames Extracted>>>' )
         index += 1
 
+def sortFrames( frames ):
+    for i in range( 0 , len( frames ) ):
+        frames[i] = str( i + 1 ) + '.jpg'
+    return frames
+
 def makeVideo():
-    frames = [f for f in os.listdir( './managementServer/client/frames/' ) if f.endswith( '.jpg' )]
-    frame = cv2.imread( './managementServer/client/frames/1.jpg' )
-    fourcc = cv2.VideoWriter_fourcc( *'MP4V' )
-    video = cv2.VideoWriter( './managementServer/client/video/processedvideo.mp4' , fourcc , 30.0 , ( frame.shape[1] , frame.shape[0] ) )
-    print("Aqui")
+    frames = [f for f in os.listdir( dirFrame ) if f.endswith( '.jpg' )]
+    frames = sortFrames( frames )
+    frame = cv2.imread( dirFrame + '1.jpg' )
+    fourcc = cv2.VideoWriter_fourcc( *'mpv4' )
+    video = cv2.VideoWriter( dirVideo + 'processedvideo.mp4' , fourcc , 60.0 , ( frame.shape[1] , frame.shape[0] ) )
     for i in frames:
-        video.write( cv2.imread( os.path.join( './managementServer/client/frames/' , i ) ) )
+        video.write( cv2.imread( os.path.join( dirFrame , i ) ) )
     cv2.destroyAllWindows()
     video.release()
 
-###################################################################################################
-#                                             <MAIN>
-if __name__ == '__main__':
+def clientServerConnection():
     managementserver = socket.socket( socket.AF_INET , socket.SOCK_STREAM )
     managementserver.bind( ( 'localhost' , 6000 ) )
     managementserver.listen( 1 )
+    print('>>>MANAGEMENT SERVER: OPERATIONAL<<<')
     while True:
         connection, client_address = managementserver.accept()
         try:
-            with open( './managementServer/client/video/video.mp4' , 'wb' ) as file:
+            with open( dirVideo + 'video.mp4' , 'wb' ) as file:
                 data = connection.recv( 1024 )
                 while data:
                     file.write( data )
                     data = connection.recv( 1024 )
+            print( '<<<Video Received Successfully>>>' )
             extractFrames()
-            makeVideo()
-            print("After Make")
         finally:
             connection.close()
             managementserver.close()
-            exit()
+            break
+###################################################################################################
+#                                             <MAIN>
+if __name__ == '__main__':
+    dirVideo = './managementServer/client/video/'
+    dirFrame = './managementServer/client/frames/'
+    clientServerConnection()
