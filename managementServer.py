@@ -74,6 +74,30 @@ def serverNode01Connection():
         finally:
             num += 1
             managementserver.close()
+    print( '<<<Frames Sent Successfully to NODE01>>>' )
+    return num
+
+def serverNode02Connection( num ):
+    managementserver = socket.socket( socket.AF_INET , socket.SOCK_STREAM )
+    managementserver.connect( ( 'localhost' , 6002 ) )
+    info = bytes( str( int( len( os.listdir( dirFrame ) ) / 3 ) ) , 'UTF-8' )
+    managementserver.send( info )
+    managementserver.close()
+    numFrames = int( len( os.listdir( dirFrame ) ) / 3 ) * 2
+    while num <= numFrames:      
+        managementserver = socket.socket( socket.AF_INET , socket.SOCK_STREAM )
+        managementserver.connect( ( 'localhost' , 6002 ) )
+        try:
+            with open( dirFrame + str( num ) + '.jpg' , 'rb' ) as file:
+                data = file.read( 1024 )
+                while data:
+                    managementserver.send( data )
+                    data = file.read( 1024 )
+        finally:
+            num += 1
+            managementserver.close()
+    print( '<<<Frames Sent Successfully to NODE02>>>' )
+    return num
 ###################################################################################################
 #                                             <MAIN>
 if __name__ == '__main__':
@@ -81,5 +105,5 @@ if __name__ == '__main__':
     dirFrame = './managementServer/client/frames/'
     clientServerConnection()
     extractFrames()
-    serverNode01Connection()
-    print( '<<<Frames Sent Successfully to NODE01>>>' )
+    n = serverNode01Connection()
+    n = serverNode02Connection( n )
