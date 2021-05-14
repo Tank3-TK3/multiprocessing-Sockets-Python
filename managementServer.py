@@ -3,7 +3,6 @@
 import os
 import cv2
 import socket
-#import ffmpeg
 
 ###################################################################################################
 #                                           <FUNCTIONS>
@@ -40,7 +39,7 @@ def clientServerConnection():
     managementserver = socket.socket( socket.AF_INET , socket.SOCK_STREAM )
     managementserver.bind( ( 'localhost' , 6000 ) )
     managementserver.listen( 1 )
-    print('>>>MANAGEMENT SERVER: OPERATIONAL<<<')
+    print('>>>MANAGEMENT SERVER -> OPERATIVE<<<')
     while True:
         connection, client_address = managementserver.accept()
         try:
@@ -50,14 +49,37 @@ def clientServerConnection():
                     file.write( data )
                     data = connection.recv( 1024 )
             print( '<<<Video Received Successfully>>>' )
-            extractFrames()
         finally:
             connection.close()
             managementserver.close()
             break
+
+def serverNode01Connection():
+    managementserver = socket.socket( socket.AF_INET , socket.SOCK_STREAM )
+    managementserver.connect( ( 'localhost' , 6001 ) )
+    info = bytes( str( int( len( os.listdir( dirFrame ) ) / 3 ) ) , 'UTF-8' )
+    managementserver.send( info )
+    managementserver.close()
+    numFrames = int( len( os.listdir( dirFrame ) ) / 3 )
+    num = 1
+    while num <= numFrames:      
+        managementserver = socket.socket( socket.AF_INET , socket.SOCK_STREAM )
+        managementserver.connect( ( 'localhost' , 6001 ) )
+        try:
+            with open( dirFrame + str( num ) + '.jpg' , 'rb' ) as file:
+                data = file.read( 1024 )
+                while data:
+                    managementserver.send( data )
+                    data = file.read( 1024 )
+        finally:
+            num += 1
+            managementserver.close()
 ###################################################################################################
 #                                             <MAIN>
 if __name__ == '__main__':
     dirVideo = './managementServer/client/video/'
     dirFrame = './managementServer/client/frames/'
     clientServerConnection()
+    extractFrames()
+    serverNode01Connection()
+    print( '<<<Frames Sent Successfully to NODE01>>>' )

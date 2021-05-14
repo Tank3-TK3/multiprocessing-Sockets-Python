@@ -7,7 +7,7 @@ import socket
 def clientServerConnection():
     client = socket.socket( socket.AF_INET , socket.SOCK_STREAM )
     client.connect( ( 'localhost' , 6000 ) )
-    print( '>>>CLIENT: OPERATIONAL<<<' )
+    print( '>>>CLIENT -> OPERATIVE<<<' )
     try:
         with open( './client/video.mp4' , 'rb' ) as file:
             data = file.read( 1024 )
