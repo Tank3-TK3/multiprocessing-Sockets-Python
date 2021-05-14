@@ -22,7 +22,6 @@ def serverNode01Connection():
     serverNode01 = socket.socket( socket.AF_INET , socket.SOCK_STREAM )
     serverNode01.bind( ( 'localhost' , 6001 ) )
     serverNode01.listen( 1 )
-    print('>>>SERVER NODE 01 -> OPERATIVE<<<')
     num = 0
     while True:
         connection, client_address = serverNode01.accept()
@@ -32,10 +31,10 @@ def serverNode01Connection():
                 while data:
                     file.write( data )
                     data = connection.recv( 1024 )
+                print( '<<<Frame ' + str( num+1 ) + ' Received Successfully>>>' )
         finally:
             num += 1
             if num < info:
-                print( '<<<Frame ' + str( num+1 ) + ' Received Successfully>>>' )
                 connection.close()
             else:
                 connection.close()

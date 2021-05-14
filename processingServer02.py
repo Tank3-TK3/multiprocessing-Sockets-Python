@@ -19,11 +19,9 @@ def serverNode02Connection():
     finally:
         connection.close()
     info = int(info.decode('UTF-8'))
-    print(type(info))
     serverNode02 = socket.socket( socket.AF_INET , socket.SOCK_STREAM )
     serverNode02.bind( ( 'localhost' , 6002 ) )
     serverNode02.listen( 1 )
-    print('>>>SERVER NODE 02 -> OPERATIVE<<<')
     num = 0
     while True:
         connection, client_address = serverNode02.accept()
@@ -33,10 +31,10 @@ def serverNode02Connection():
                 while data:
                     file.write( data )
                     data = connection.recv( 1024 )
+                print( '<<<Frame ' + str( num+1 ) + ' Received Successfully>>>' )
         finally:
             num += 1
             if num < info:
-                print( '<<<Frame ' + str( num+1 ) + ' Received Successfully>>>' )
                 connection.close()
             else:
                 connection.close()
@@ -44,7 +42,7 @@ def serverNode02Connection():
                 break
 
 def frameProcessing():
-    for x in range( 0 , len( os.listdir( './processingServer01/framesreceived/' ) ) ):
+    for x in range( 0 , len( os.listdir( './processingServer02/framesreceived/' ) ) ):
         imgname = './processingServer02/framesreceived/' + str( x+1 ) + '.jpg'
         imgpname = './processingServer02/processedframes/' + str( x+1 ) + '.jpg'
         img = cv2.imread( imgname , 2 )
