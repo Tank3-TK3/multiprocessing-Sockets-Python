@@ -130,4 +130,3 @@ if __name__ == '__main__':
     n = serverNode01Connection()
     n = serverNode02Connection( n )
     n = serverNode03Connection( n )
-    print(n-1)
