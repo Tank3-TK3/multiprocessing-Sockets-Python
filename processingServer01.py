@@ -50,8 +50,30 @@ def frameProcessing():
         cv2.destroyAllWindows()
         print( '<<<Frame ' + str( x+1 ) + ' Processed Successfully>>>' )
 
+def node01ServerConnection():
+    serverNode01 = socket.socket( socket.AF_INET , socket.SOCK_STREAM )
+    serverNode01.connect( ( 'localhost' , 6001 ) )
+    info = bytes( str( int( len( os.listdir( './processingServer01/processedframes/' ) ) ) ) , 'UTF-8' )
+    serverNode01.send( info )
+    serverNode01.close()
+    numFrames = int( len( os.listdir( './processingServer01/processedframes/' ) ) )
+    num = 1
+    while num <= numFrames:      
+        serverNode01 = socket.socket( socket.AF_INET , socket.SOCK_STREAM )
+        serverNode01.connect( ( 'localhost' , 6001 ) )
+        try:
+            with open( './processingServer01/processedframes/' + str( num ) + '.jpg' , 'rb' ) as file:
+                data = file.read( 1024 )
+                while data:
+                    serverNode01.send( data )
+                    data = file.read( 1024 )
+        finally:
+            print( '<<<Frame ' + str( num ) + ' Sent Successfully>>>' )
+            num += 1
+            serverNode01.close()
 ###################################################################################################
 #                                             <MAIN>
 if __name__ == '__main__':
     serverNode01Connection()
     frameProcessing()
+    node01ServerConnection()

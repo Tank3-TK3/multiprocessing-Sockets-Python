@@ -49,7 +49,6 @@ def frameProcessing():
         cv2.imwrite( imgpname , img )
         cv2.destroyAllWindows()
         print( '<<<Frame ' + str( x+1 ) + ' Processed Successfully>>>' )
-
 ###################################################################################################
 #                                             <MAIN>
 if __name__ == '__main__':

@@ -120,6 +120,73 @@ def serverNode03Connection( num ):
             managementserver.close()
     print( '<<<Frames Sent Successfully to NODE03>>>' )
     return num
+
+def node01ServerConnection():
+    managementserver = socket.socket( socket.AF_INET , socket.SOCK_STREAM )
+    managementserver.bind( ( 'localhost' , 6001 ) )
+    managementserver.listen( 1 )
+    info = 0
+    connection, client_address = managementserver.accept()
+    try:
+        data = connection.recv( 1024 )
+        info = data
+    finally:
+        connection.close()
+    info = int(info.decode('UTF-8'))
+    managementserver = socket.socket( socket.AF_INET , socket.SOCK_STREAM )
+    managementserver.bind( ( 'localhost' , 6001 ) )
+    managementserver.listen( 1 )
+    num = 0
+    while True:
+        connection, client_address = managementserver.accept()
+        try:
+            with open( './managementServer/processingServer01/' + str( num+1 ) + '.jpg' , 'wb' ) as file:
+                data = connection.recv( 1024 )
+                while data:
+                    file.write( data )
+                    data = connection.recv( 1024 )
+        finally:
+            num += 1
+            if num < info:
+                connection.close()
+            else:
+                print( '<<<Frames from NODE01 Successfully Received>>>' )
+                connection.close()
+                managementserver.close()
+                return num
+
+def node02ServerConnection( num ):
+    managementserver = socket.socket( socket.AF_INET , socket.SOCK_STREAM )
+    managementserver.bind( ( 'localhost' , 6002 ) )
+    managementserver.listen( 1 )
+    info = 0
+    connection, client_address = managementserver.accept()
+    try:
+        data = connection.recv( 1024 )
+        info = data
+    finally:
+        connection.close()
+    info = int(info.decode('UTF-8'))
+    managementserver = socket.socket( socket.AF_INET , socket.SOCK_STREAM )
+    managementserver.bind( ( 'localhost' , 6002 ) )
+    managementserver.listen( 1 )
+    while True:
+        connection, client_address = managementserver.accept()
+        try:
+            with open( './managementServer/processingServer02/' + str( num+1 ) + '.jpg' , 'wb' ) as file:
+                data = connection.recv( 1024 )
+                while data:
+                    file.write( data )
+                    data = connection.recv( 1024 )
+        finally:
+            num += 1
+            if num < info:
+                connection.close()
+            else:
+                print( '<<<Frames from NODE02 Successfully Received>>>' )
+                connection.close()
+                managementserver.close()
+                return num
 ###################################################################################################
 #                                             <MAIN>
 if __name__ == '__main__':
@@ -130,3 +197,5 @@ if __name__ == '__main__':
     n = serverNode01Connection()
     n = serverNode02Connection( n )
     n = serverNode03Connection( n )
+    n = node01ServerConnection()
+    n = node02ServerConnection( n )
