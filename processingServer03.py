@@ -2,8 +2,8 @@
 #                                           <MODULES>
 import os
 import cv2
+import sys
 import socket
-
 ###################################################################################################
 #                                           <FUNCTIONS>
 def serverNode03Connection():
@@ -49,8 +49,33 @@ def frameProcessing():
         cv2.imwrite( imgpname , img )
         cv2.destroyAllWindows()
         print( '<<<Frame ' + str( x+1 ) + ' Processed Successfully>>>' )
+
+def node03ServerConnection():
+    serverNode03 = socket.socket( socket.AF_INET , socket.SOCK_STREAM )
+    serverNode03.connect( ( 'localhost' , 6003 ) )
+    info = bytes( str( int( len( os.listdir( './processingServer03/processedframes/' ) ) ) * 3 ) , 'UTF-8' )
+    serverNode03.send( info )
+    serverNode03.close()
+    numFrames = int( len( os.listdir( './processingServer03/processedframes/' ) ) )
+    num = 1
+    while num <= numFrames:      
+        serverNode03 = socket.socket( socket.AF_INET , socket.SOCK_STREAM )
+        serverNode03.connect( ( 'localhost' , 6003 ) )
+        try:
+            with open( './processingServer03/processedframes/' + str( num ) + '.jpg' , 'rb' ) as file:
+                data = file.read( 1024 )
+                while data:
+                    serverNode03.send( data )
+                    data = file.read( 1024 )
+        finally:
+            print( '<<<Frame ' + str( num ) + ' Sent Successfully>>>' )
+            num += 1
+            serverNode03.close()
 ###################################################################################################
 #                                             <MAIN>
 if __name__ == '__main__':
+    sys.stdout.flush()
     serverNode03Connection()
     frameProcessing()
+    sys.stdout.flush()
+    node03ServerConnection()

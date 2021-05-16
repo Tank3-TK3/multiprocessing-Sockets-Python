@@ -2,8 +2,8 @@
 #                                           <MODULES>
 import os
 import cv2
+import sys
 import socket
-
 ###################################################################################################
 #                                           <FUNCTIONS>
 def extractFrames():
@@ -18,22 +18,6 @@ def extractFrames():
         except:
             print( '<<<All Frames Extracted>>>' )
         index += 1
-
-def sortFrames( frames ):
-    for i in range( 0 , len( frames ) ):
-        frames[i] = str( i + 1 ) + '.jpg'
-    return frames
-
-def makeVideo():
-    frames = [f for f in os.listdir( dirFrame ) if f.endswith( '.jpg' )]
-    frames = sortFrames( frames )
-    frame = cv2.imread( dirFrame + '1.jpg' )
-    fourcc = cv2.VideoWriter_fourcc( *'mpv4' )
-    video = cv2.VideoWriter( dirVideo + 'processedvideo.mp4' , fourcc , 60.0 , ( frame.shape[1] , frame.shape[0] ) )
-    for i in frames:
-        video.write( cv2.imread( os.path.join( dirFrame , i ) ) )
-    cv2.destroyAllWindows()
-    video.release()
 
 def clientServerConnection():
     managementserver = socket.socket( socket.AF_INET , socket.SOCK_STREAM )
@@ -187,15 +171,84 @@ def node02ServerConnection( num ):
                 connection.close()
                 managementserver.close()
                 return num
+
+def node03ServerConnection( num ):
+    managementserver = socket.socket( socket.AF_INET , socket.SOCK_STREAM )
+    managementserver.bind( ( 'localhost' , 6003 ) )
+    managementserver.listen( 1 )
+    info = 0
+    connection, client_address = managementserver.accept()
+    try:
+        data = connection.recv( 1024 )
+        info = data
+    finally:
+        connection.close()
+    info = int(info.decode('UTF-8'))
+    managementserver = socket.socket( socket.AF_INET , socket.SOCK_STREAM )
+    managementserver.bind( ( 'localhost' , 6003 ) )
+    managementserver.listen( 1 )
+    while True:
+        connection, client_address = managementserver.accept()
+        try:
+            with open( './managementServer/processingServer03/' + str( num+1 ) + '.jpg' , 'wb' ) as file:
+                data = connection.recv( 1024 )
+                while data:
+                    file.write( data )
+                    data = connection.recv( 1024 )
+        finally:
+            num += 1
+            if num < info:
+                connection.close()
+            else:
+                print( '<<<Frames from NODE03 Successfully Received>>>' )
+                connection.close()
+                managementserver.close()
+                return num
+
+def makeVideo():
+    numframes = 0
+    frames = []
+    for a in range( 1 , 4):
+        for _ in range( 1 , len( os.listdir( './managementServer/processingServer0' + str( a ) + '/' ) ) + 1 ):
+            numframes += 1
+            frames.append( './managementServer/processingServer0' + str( a ) + '/' + str( numframes ) + '.jpg' )
+    frame = cv2.imread( './managementServer/processingServer01/1.jpg' )
+    fourcc = cv2.VideoWriter_fourcc( *'mp4v' )
+    video = cv2.VideoWriter( dirVideo + 'processedvideo.mp4' , fourcc , 60.0 , ( frame.shape[1] , frame.shape[0] ) )
+    for i in frames:
+        video.write( cv2.imread( i ) )
+    cv2.destroyAllWindows()
+    video.release()
+    print( '<<<Video Created Successfully>>>' )
+
+def serverClientConnection():
+    managementserver = socket.socket( socket.AF_INET , socket.SOCK_STREAM )
+    managementserver.connect( ( 'localhost' , 6000 ) )
+    try:
+        with open( dirVideo + 'processedvideo.mp4' , 'rb' ) as file:
+            data = file.read( 1024 )
+            while data:
+                managementserver.send( data )
+                data = file.read( 1024 )
+    finally:
+        print( '<<<Video Sent Successfully>>>' )
+        managementserver.close()
 ###################################################################################################
 #                                             <MAIN>
 if __name__ == '__main__':
     dirVideo = './managementServer/client/video/'
     dirFrame = './managementServer/client/frames/'
+    sys.stdout.flush()
     clientServerConnection()
     extractFrames()
+    sys.stdout.flush()
     n = serverNode01Connection()
     n = serverNode02Connection( n )
     n = serverNode03Connection( n )
+    sys.stdout.flush()
     n = node01ServerConnection()
     n = node02ServerConnection( n )
+    n = node03ServerConnection( n )
+    sys.stdout.flush()
+    makeVideo()
+    serverClientConnection()

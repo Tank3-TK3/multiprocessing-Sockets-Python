@@ -2,8 +2,8 @@
 #                                           <MODULES>
 import os
 import cv2
+import sys
 import socket
-
 ###################################################################################################
 #                                           <FUNCTIONS>
 def serverNode01Connection():
@@ -74,6 +74,8 @@ def node01ServerConnection():
 ###################################################################################################
 #                                             <MAIN>
 if __name__ == '__main__':
+    sys.stdout.flush()
     serverNode01Connection()
     frameProcessing()
+    sys.stdout.flush()
     node01ServerConnection()
