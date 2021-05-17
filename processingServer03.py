@@ -78,4 +78,9 @@ if __name__ == '__main__':
     serverNode03Connection()
     frameProcessing()
     sys.stdout.flush()
-    node03ServerConnection()
+    while True:
+        try:
+            node03ServerConnection()
+            break
+        except:
+            pass

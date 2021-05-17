@@ -20,7 +20,7 @@ def clientServerConnection():
 
 def serverClientConnection():
     client = socket.socket( socket.AF_INET , socket.SOCK_STREAM )
-    client.bind( ( 'localhost' , 6000 ) )
+    client.bind( ( 'localhost' , 6004 ) )
     client.listen( 1 )
     while True:
         connection, client_address = client.accept()
