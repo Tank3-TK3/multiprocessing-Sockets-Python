@@ -76,7 +76,12 @@ def node01ServerConnection():
 if __name__ == '__main__':
     sys.stdout.flush()
     serverNode01Connection()
-    frameProcessing()
+    while True:
+        try:
+            frameProcessing()
+            break
+        except:
+            pass
     sys.stdout.flush()
     while True:
         try:

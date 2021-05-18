@@ -242,9 +242,24 @@ if __name__ == '__main__':
     clientServerConnection()
     extractFrames()
     sys.stdout.flush()
-    n = serverNode01Connection()
-    n = serverNode02Connection( n )
-    n = serverNode03Connection( n )
+    while True:
+        try:
+            n = serverNode01Connection()
+            break
+        except:
+            pass
+    while True:
+        try:
+            n = serverNode02Connection( n )
+            break
+        except:
+            pass
+    while True:
+        try:
+            n = serverNode03Connection( n )
+            break
+        except:
+            pass
     sys.stdout.flush()
     n = node01ServerConnection()
     n = node02ServerConnection( n )
