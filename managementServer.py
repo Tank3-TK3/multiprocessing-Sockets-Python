@@ -214,7 +214,7 @@ def makeVideo():
             frames.append( './managementServer/processingServer0' + str( a ) + '/' + str( numframes ) + '.jpg' )
     frame = cv2.imread( './managementServer/processingServer01/1.jpg' )
     fourcc = cv2.VideoWriter_fourcc( *'mp4v' )
-    video = cv2.VideoWriter( dirVideo + 'processedvideo.mp4' , fourcc , 25.0 , ( frame.shape[1] , frame.shape[0] ) )
+    video = cv2.VideoWriter( dirVideo + 'processedvideo.mp4' , fourcc , 60.0 , ( frame.shape[1] , frame.shape[0] ) )
     for i in frames:
         video.write( cv2.imread( i ) )
     cv2.destroyAllWindows()
